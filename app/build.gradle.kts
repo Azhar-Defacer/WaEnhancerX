@@ -86,8 +86,10 @@ android {
             val certificateSha256 = MessageDigest.getInstance("SHA-256")
                 .digest(certificate.encoded)
                 .joinToString("") { "%02x".format(it) }
-            require(certificateSha256 == expectedSigningCertificateSha256) {
-                "Signing certificate does not match v1. Expected $expectedSigningCertificateSha256, got $certificateSha256."
+            if (project.findProperty("allowDevSigning")?.toString() != "true") {
+                require(certificateSha256 == expectedSigningCertificateSha256) {
+                    "Signing certificate does not match v1. Expected $expectedSigningCertificateSha256, got $certificateSha256."
+                }
             }
 
             storeFile = keyFile

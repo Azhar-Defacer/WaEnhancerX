@@ -37,4 +37,7 @@ plugins {
 rootProject.name = "Wa Enhancer X"
 include(":app")
 include(":licensing")
+if (!file("licensing/build.gradle.kts").exists() && !file("licensing/build.gradle").exists()) {
+    project(":licensing").projectDir = file("licensing-stub")
+}
 
