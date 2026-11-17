@@ -18,9 +18,25 @@ public final class BootloaderSpooferFeature {
         public String source = "";
         public boolean parsed;
         public int totalScore;
-        public boolean ecPresent, ecChainValid, ecKeyMatches, ecExpiry;
-        public boolean rsaPresent, rsaChainValid, rsaNotInKeybox, rsaExpiry;
-        public boolean basicIntegrity, deviceIntegrity;
+        public boolean recommended;
+        public int runtimeScore;
+        public boolean featureEnabled;
+        public boolean hookActive;
+        public int ecScore;
+        public boolean ecPresent;
+        public boolean ecChainValid;
+        public boolean ecKeyMatches;
+        public boolean ecExpired;
+        public int rsaScore;
+        public boolean rsaNotInKeybox;
+        public boolean rsaPresent;
+        public boolean rsaChainValid;
+        public boolean rsaKeyMatches;
+        public boolean rsaExpired;
+        public int integrityScore;
+        public boolean basicIntegrity;
+        public boolean deviceIntegrity;
+        public boolean strongIntegritySupported;
         public String error = "Not available in this build.";
     }
 
@@ -29,7 +45,7 @@ public final class BootloaderSpooferFeature {
     public static void syncDefaultKeyboxAsync(Context context, SyncCallback callback) {
         if (callback != null) callback.onResult(false, "Not available in this build.");
     }
-    public static boolean syncDefaultKeybox(Context context) { return false; }
+    public static String syncDefaultKeybox(Context context) { return ""; }
     public static String getManagedKeyboxXml(Context context) { return ""; }
     public static String getCustomKeyboxXml(Context context) { return ""; }
     public static void saveCustomKeyboxXml(Context context, String xml) {}

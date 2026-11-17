@@ -198,7 +198,11 @@ fun Modifier.waexGlass(
                 return@drawWithContent
             }
             val outline = shape.createOutline(size, layoutDirection, this)
-            val clip = Path().apply { addOutline(outline) }
+            val clip = when (outline) {
+                is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
+                is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
+                is Outline.Generic -> outline.path
+            }
             val cornerRadius = (outline as? Outline.Rounded)?.roundRect?.topLeftCornerRadius?.x ?: 0f
 
             clipPath(clip) {
@@ -228,19 +232,25 @@ fun Modifier.waexGlass(
             }
             drawContent()
             // Specular rim: bright on the top-left, fading, with a faint bounce on the bottom-right.
-            drawOutline(
-                outline = outline,
-                brush = Brush.linearGradient(
-                    colorStops = arrayOf(
-                        0f to Color.White.copy(alpha = rimAlpha),
-                        0.45f to Color.White.copy(alpha = rimAlpha * 0.12f),
-                        1f to Color.White.copy(alpha = rimAlpha * 0.4f)
-                    ),
-                    start = Offset.Zero,
-                    end = Offset(w, h)
+            val rimBrush = Brush.linearGradient(
+                colorStops = arrayOf(
+                    0f to Color.White.copy(alpha = rimAlpha),
+                    0.45f to Color.White.copy(alpha = rimAlpha * 0.12f),
+                    1f to Color.White.copy(alpha = rimAlpha * 0.4f)
                 ),
-                style = Stroke(width = 1.dp.toPx())
+                start = Offset.Zero,
+                end = Offset(w, h)
             )
+            val rimStroke = Stroke(width = 1.dp.toPx())
+            when (outline) {
+                is Outline.Rectangle -> drawRect(rimBrush, style = rimStroke)
+                is Outline.Rounded -> drawRoundRect(
+                    rimBrush,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
+                    style = rimStroke
+                )
+                is Outline.Generic -> drawPath(outline.path, rimBrush, style = rimStroke)
+            }
         }
 }
 

@@ -3,6 +3,7 @@
 // every Pro feature is an inert no-op. It is only used when the real submodule is absent.
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
