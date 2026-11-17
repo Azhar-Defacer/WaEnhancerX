@@ -1,5 +1,7 @@
 package com.waenhancer.hooking;
 
+import android.content.SharedPreferences;
+
 public final class HookingEngine {
     private HookingEngine() {}
 
@@ -10,11 +12,21 @@ public final class HookingEngine {
         LAZY_MEDIA
     }
 
+    public interface PreHook {
+        void apply(SharedPreferences prefs) throws Throwable;
+    }
+
     public static final class FeaturePolicy {
         public final Installation defaultInstallation;
+        public final PreHook preHook;
 
         public FeaturePolicy(Installation defaultInstallation) {
+            this(defaultInstallation, null);
+        }
+
+        public FeaturePolicy(Installation defaultInstallation, PreHook preHook) {
             this.defaultInstallation = defaultInstallation;
+            this.preHook = preHook;
         }
     }
 
