@@ -1,0 +1,49 @@
+name: Build experimental APK
+
+# Experimental build of the public source. Uses the inert licensing stand-in (Pro stays locked)
+# and a throwaway debug keystore, so the APK cannot upgrade an official install.
+on:
+  workflow_dispatch:
+  push:
+    branches: [experimental/stub-build]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install NDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;27.0.12077973" "cmake;3.22.1" || true
+
+      - name: Create throwaway debug keystore
+        run: |
+          keytool -genkeypair -v -keystore key.jks -storepass 123456 -keypass 123456 \
+            -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Experimental Build, O=Local, C=ID"
+
+      - name: Build debug APK
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug -PallowDevSigning=true --no-configuration-cache --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: waenhancerx-experimental-apk
+          path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
